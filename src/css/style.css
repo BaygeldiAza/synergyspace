@@ -1,0 +1,148 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: monospace;
+    background-color: #f4f6fb;
+    color: #17213a;
+}
+
+/* Main dashboard layout */
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    min-width: 220px; 
+    color: white;
+    padding: 25px 13px;
+
+    background-image:url("./img/sidebar_bg.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.logo h2 {
+    margin: 0;
+    font-size: 25px;
+}
+
+.logo h2 span {
+    color: #2685ff;
+}
+
+.logo p {
+    font-size: 12px;
+    color: #d4dced;
+}
+
+/* Sidebar links */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-nav a {
+    color: white;
+    text-decoration: none;
+    padding: 14px 10px;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background-color: #1976ed;
+}
+
+/* Main area */
+.main-area {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Topbar */
+.topbar {
+    height: 75px;
+    background-color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    border-bottom: 1px solid #e5e9f2;
+}
+
+.topbar input {
+    width: 50%;
+    max-width: 550px;
+    padding: 13px;
+    border: 1px solid #dce2ef;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar {
+    background-color: #1976ed;
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Page content */
+.content {
+    padding: 25px;
+}
+
+/* Small screen */
+@media (max-width: 700px) {
+    .sidebar {
+        width: 75px;
+        min-width: 75px;
+    }
+
+    .logo p,
+    .logo h2 span {
+        display: none;
+    }
+
+    .sidebar-nav a {
+        font-size: 0;
+        text-align: center;
+    }
+
+    .topbar {
+        padding: 0 12px;
+    }
+
+    .topbar input {
+        width: 65%;
+    }
+
+    .content {
+        padding: 15px;
+    }
+}

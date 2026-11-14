@@ -6,11 +6,11 @@
     <title>SynergySpace</title>
 </head>
 <body>
-    <h1>Welcome to SynergySpace!</h1>
-    <p>Working Better Together.</p>
+    
+    <?php require_once "./includes/header.php"; ?>
+    
+    <?php require_once "./includes/footer.php"; ?>
 
-    <?php
-        echo "<p>PHP is working correctly!</p>";
-    ?>
+    
 </body>
 </html>
