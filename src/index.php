@@ -11,12 +11,17 @@
     <?php require_once "./includes/header.php"; ?>
     
     <section class="welcome-section">
-        <div>
-            <h1>Welcome to SynergySpace!</h1>
-            <p>Find your workspace, connect with professionals and grow together.</p>
+        <div class="welcome-content">
+            <h1>SynergySpace</h1>
+            <h2>Working Better Together</h2>
+            <p>
+                Find coworking spaces, meet amazing professionals 
+                and build something great together.
+            </p>
+            <a href="#" class="primary-btn">Explore Spaces</a>
         </div>
 
-        <a href="#" class="primary-btn">Explore Spaces</a>
+        
     </section>
     <section class="stats">
         <div class="stat-card">

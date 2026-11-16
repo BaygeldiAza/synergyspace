@@ -68,7 +68,7 @@ body {
 }
 
 .logo p {
-    font-size: 20px;
+    font-size: 13px;
     color: #d4dced;
 }
 
@@ -151,33 +151,70 @@ body {
 
     background-color: lightblue;
 
-    background-image: url("./img/welcome-section-bg.png");
-    background-size: 100% 100%;
+    background-image:
+            linear-gradient(
+                to right,
+                rgba(10, 20, 35, 0.85),
+                rgba(10, 20, 33, 0.02)
+            ),                
+            url("./img/welcome-section.png");
+    background-size: cover;
     background-position: right center;
     background-repeat: no-repeat;
 
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: left;
 
-    padding: 30px;
+    padding: 30px 45px;
+    box-sizing: border-box;
     border-radius: 12px;
     margin-bottom: 25px;
+    color: white;
 }
 
-.welcome-section p {
-    margin: 0;
-    color: #69758a;
+.welcome-content{
+    max-width: 520px;
+}
+
+.welcome-content h1{
+    font-size: 46px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin:0;
+    line-height: 1.1;
+    color: white;
+}
+
+.welcome-content h2{
+    font-size: 27px;
+    font-weight: 600;
+    margin:8px 0 12px;
+    color: white;
+}
+
+.welcome-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+    color: white;
+    margin: 0 0 20px;
 }
 
 .primary-btn {
-    background-color: #1976ed;
+    display: inline-block;
+    background: #1976ed;
     color: white;
+
+    font-size: 15px;
+    font-weight: 600;
     text-decoration: none;
 
-    padding: 12px 20px;
+    padding: 12px 23px;
     border-radius: 8px;
-    white-space: nowrap;
+
+    transition: background 0.2s ease,
+                transform 0.2s ease;
 }
 
 
