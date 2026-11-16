@@ -1,4 +1,8 @@
 
+/* ========================================
+   1. GLOBAL STYLES
+======================================== */
+
 * {
     box-sizing: border-box;
 }
@@ -10,24 +14,43 @@ body {
     color: #17213a;
 }
 
-/* Main dashboard layout */
+
+/* ========================================
+   2. DASHBOARD LAYOUT
+======================================== */
+
 .dashboard {
     display: flex;
     min-height: 100vh;
 }
 
-/* Sidebar */
+.main-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.content {
+    padding: 25px;
+}
+
+
+/* ========================================
+   3. SIDEBAR
+======================================== */
+
 .sidebar {
-    width: 220px;
-    min-width: 220px; 
-    color: white;
-    padding: 25px 13px;
+    width: 300px;
+    min-width: 220px;
 
     background-image:url("./img/sidebar_bg.png");
 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+
+    color: white;
+    padding: 25px 13px;
+
 }
 
 .logo {
@@ -37,7 +60,7 @@ body {
 
 .logo h2 {
     margin: 0;
-    font-size: 25px;
+    font-size: 30px;
 }
 
 .logo h2 span {
@@ -45,11 +68,10 @@ body {
 }
 
 .logo p {
-    font-size: 12px;
+    font-size: 20px;
     color: #d4dced;
 }
 
-/* Sidebar links */
 .sidebar-nav {
     display: flex;
     flex-direction: column;
@@ -59,9 +81,9 @@ body {
 .sidebar-nav a {
     color: white;
     text-decoration: none;
-    padding: 14px 10px;
+    padding: 14px 12px;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 20px;
 }
 
 .sidebar-nav a:hover,
@@ -69,19 +91,19 @@ body {
     background-color: #1976ed;
 }
 
-/* Main area */
-.main-area {
-    flex: 1;
-    min-width: 0;
-}
 
-/* Topbar */
+/* ========================================
+   4. TOPBAR
+======================================== */
+
 .topbar {
-    height: 75px;
+    height: 100px;
     background-color: white;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     padding: 0 30px;
     border-bottom: 1px solid #e5e9f2;
 }
@@ -90,8 +112,10 @@ body {
     width: 50%;
     max-width: 550px;
     padding: 13px;
+
     border: 1px solid #dce2ef;
     border-radius: 10px;
+    background-color: whitesmoke;
     font-size: 14px;
 }
 
@@ -100,25 +124,176 @@ body {
     align-items: center;
     gap: 15px;
 }
-
+.icon{
+    font-size: 25px;
+}
 .avatar {
     background-color: #1976ed;
     color: white;
-    width: 38px;
-    height: 38px;
+    font-size: 25px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
+
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Page content */
-.content {
-    padding: 25px;
+
+/* ========================================
+   5. WELCOME SECTION
+======================================== */
+
+.welcome-section {
+    width: 100%;
+    min-height: 200px;
+
+    background-color: lightblue;
+
+    background-image: url("./img/welcome-section-bg.png");
+    background-size: 100% 100%;
+    background-position: right center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 25px;
 }
 
-/* Small screen */
+.welcome-section p {
+    margin: 0;
+    color: #69758a;
+}
+
+.primary-btn {
+    background-color: #1976ed;
+    color: white;
+    text-decoration: none;
+
+    padding: 12px 20px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+
+/* ========================================
+   6. STATISTICS CARDS
+======================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+
+    margin-bottom: 35px;
+}
+
+.stat-card {
+    background-color: white;
+    padding: 22px;
+    border-radius: 12px;
+}
+
+.stat-card h3 {
+    font-size: 14px;
+    color: #69758a;
+    margin: 0;
+}
+
+.stat-card p {
+    font-size: 30px;
+    font-weight: bold;
+    margin: 15px 0 8px;
+}
+
+.stat-card span {
+    font-size: 12px;
+    color: #8993a5;
+}
+
+
+/* ========================================
+   7. FEATURE SECTION
+======================================== */
+
+.section-heading {
+    margin-bottom: 18px;
+}
+
+.section-heading h2 {
+    margin-bottom: 5px;
+}
+
+.section-heading p {
+    color: #69758a;
+    margin-top: 0;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.feature-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.feature-card h3 {
+    margin-top: 0;
+}
+
+.feature-card p {
+    color: #69758a;
+    line-height: 1.6;
+    min-height: 50px;
+}
+
+.feature-card a {
+    color: #1976ed;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+/* ========================================
+   8. HOVER EFFECTS
+======================================== */
+
+.primary-btn:hover {
+    background-color: #125fc4;
+}
+
+.feature-card a:hover {
+    text-decoration: underline;
+}
+
+
+/* ========================================
+   9. RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 1000px) {
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 @media (max-width: 700px) {
+
     .sidebar {
         width: 75px;
         min-width: 75px;
@@ -144,5 +319,18 @@ body {
 
     .content {
         padding: 15px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .welcome-section {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
     }
 }
