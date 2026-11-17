@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <div class="auth-container">
+    <div class="split left">
+        <h1>Welcome to SynergySpace</h1>
+        <h2>Find suitable places</h2>
+    </div>
+
+    <div class="split right">
 
         <div class="auth-card">
 

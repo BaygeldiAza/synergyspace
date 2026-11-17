@@ -376,19 +376,34 @@ body {
    10. REGISTER PAGE
 ======================================== */
 
-.auth-container {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
 
-    background:
-        radial-gradient(circle at top left, #31558a, transparent 45%),
-        linear-gradient(135deg, #101c32, #1e3558);
+/* Control the left side */
+.left {
+  left: 0;
+  background-color: #2685ff;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+  background-color: whitesmoke;
 }
 
 .auth-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
     width: 100%;
     max-width: 440px;
     padding: 40px;
