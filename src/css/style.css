@@ -377,39 +377,90 @@ body {
 ======================================== */
 
 .split {
-  height: 100%;
-  width: 50%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  overflow-x: hidden;
-  padding-top: 20px;
+    width: 50%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    overflow-y: auto;
 }
 
-/* Control the left side */
+/* =========================
+   LEFT BRANDING SECTION
+========================= */
+
 .left {
-  left: 0;
-  background-color: #2685ff;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+
+    background:
+        radial-gradient(circle at 15% 15%, rgba(75, 139, 232, 0.35), transparent 35%),
+        linear-gradient(145deg, #142541, #244b7e);
+
+    color: white;
 }
 
-/* Control the right side */
-.right {
-  right: 0;
-  background-color: whitesmoke;
+.brand-content {
+    max-width: 480px;
+    padding: 45px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
 }
+
+.brand-content h1 {
+    font-size: 42px;
+    line-height: 1.2;
+    margin-bottom: 18px;
+    letter-spacing: -1px;
+}
+
+.brand-content h2 {
+    font-size: 21px;
+    font-weight: 500;
+    color: #9dc5ff;
+    margin-bottom: 22px;
+}
+
+.brand-content p {
+    color: #d0dced;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+/* =========================
+   RIGHT FORM SECTION
+========================= */
+
+.right {
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 35px;
+    background: linear-gradient(135deg, #f4f7fc, #eaf0f9);
+}
+
+/* =========================
+   REGISTRATION CARD
+========================= */
 
 .auth-card {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    align-items: center;
     width: 100%;
-    max-width: 440px;
-    padding: 40px;
+    max-width: 470px;
+    padding: 38px;
     background-color: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 30px rgba(28, 52, 86, 0.08),
+        0 25px 60px rgba(28, 52, 86, 0.08);
+
+    border: 1px solid #edf1f7;
 }
 
 .auth-card h1 {
@@ -419,18 +470,23 @@ body {
 }
 
 .auth-card > p {
-    color: #8490a3;
+    color: #8793a5;
     font-size: 14px;
-    margin-bottom: 30px;
+    margin-bottom: 28px;
+    line-height: 1.6;
 }
 
+/* =========================
+   FORM INPUTS
+========================= */
+
 .form-group {
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 }
 
 .form-group > label {
     display: block;
-    margin-bottom: 9px;
+    margin-bottom: 8px;
     color: #263b60;
     font-size: 14px;
     font-weight: 600;
@@ -440,68 +496,114 @@ body {
 .form-group input[type="email"],
 .form-group input[type="password"] {
     width: 100%;
-    padding: 14px 15px;
+    height: 48px;
+    padding: 0 14px;
+
     border: 1px solid #dce3ed;
-    border-radius: 8px;
+    border-radius: 9px;
+
     background-color: #f8faff;
     font-size: 14px;
-    box-sizing: border-box;
-    outline: none;
-    transition: 0.2s;
-}
+    color: #263b60;
 
-.form-group input:focus {
-    border-color: #477bd1;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(71, 123, 209, 0.12);
+    outline: none;
+    transition: all 0.25s ease;
 }
 
 .form-group input::placeholder {
     color: #aab4c3;
 }
 
+.form-group input:focus {
+    border-color: #3c78cf;
+    background-color: #ffffff;
+
+    box-shadow: 0 0 0 4px rgba(60, 120, 207, 0.12);
+}
+
+/* =========================
+   ACCOUNT TYPE
+========================= */
+
 .role-options {
     display: flex;
-    gap: 15px;
+    gap: 12px;
 }
 
 .role-options label {
     flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
     padding: 13px;
     border: 1px solid #dce3ed;
-    border-radius: 8px;
+    border-radius: 9px;
+
     color: #44536a;
-    cursor: pointer;
     background-color: #f8faff;
+    font-size: 14px;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.role-options label:hover {
+    border-color: #3c78cf;
+    background-color: #f0f6ff;
 }
 
 .role-options input {
-    margin-right: 7px;
     accent-color: #356bc0;
 }
 
+/* Highlight selected role */
+.role-options label:has(input:checked) {
+    border-color: #356bc0;
+    background-color: #edf4ff;
+    color: #244c8d;
+}
+
+/* =========================
+   REGISTER BUTTON
+========================= */
+
 .auth-button {
     width: 100%;
-    padding: 15px;
+    height: 50px;
+    margin-top: 8px;
+
     border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #356bc0, #244c8d);
+    border-radius: 10px;
+
+    background: linear-gradient(135deg, #3978cf, #244c8d);
     color: white;
+
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.2s;
+
+    box-shadow: 0 5px 15px rgba(53, 107, 192, 0.2);
+    transition: all 0.25s ease;
 }
 
 .auth-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 7px 18px rgba(53, 107, 192, 0.25);
+    box-shadow: 0 9px 20px rgba(53, 107, 192, 0.3);
 }
+
+.auth-button:active {
+    transform: translateY(0);
+}
+
+/* =========================
+   LOGIN FOOTER
+========================= */
 
 .auth-footer {
     text-align: center;
-    margin-top: 25px;
-    color: #8490a3;
+    margin-top: 22px;
+    color: #8793a5;
     font-size: 14px;
 }
 
@@ -513,4 +615,57 @@ body {
 
 .auth-footer a:hover {
     text-decoration: underline;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+    .left {
+        padding: 30px;
+    }
+
+    .brand-content {
+        padding: 30px;
+    }
+
+    .brand-content h1 {
+        font-size: 34px;
+    }
+
+    .auth-card {
+        padding: 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .split {
+        width: 100%;
+        position: relative;
+        height: auto;
+    }
+
+    .left {
+        min-height: 300px;
+    }
+
+    .right {
+        min-height: 100vh;
+        padding: 30px 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-content {
+        padding: 25px;
+    }
+
+    .brand-content h1 {
+        font-size: 30px;
+    }
+
+    .auth-card {
+        padding: 25px 20px;
+    }
 }

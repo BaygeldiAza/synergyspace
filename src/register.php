@@ -8,8 +8,12 @@
 </head>
 <body>
     <div class="split left">
-        <h1>Welcome to SynergySpace</h1>
-        <h2>Find suitable places</h2>
+        <div class="brand-content">
+            <h1>Welcome to SynergySpace</h1>
+            <h2>Working Better Together</h2>
+            <p>Find suitable workspaces, connect with professionals,
+               and build meaningful collaborations.</p>
+        </div>
     </div>
 
     <div class="split right">
