@@ -42,15 +42,13 @@ body {
     width: 300px;
     min-width: 220px;
 
-    background-image:url("./img/sidebar_bg.png");
-
+    background-image: url("./img/sidebar_bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 
     color: white;
     padding: 25px 13px;
-
 }
 
 .logo {
@@ -124,9 +122,11 @@ body {
     align-items: center;
     gap: 15px;
 }
-.icon{
+
+.icon {
     font-size: 25px;
 }
+
 .avatar {
     background-color: #1976ed;
     color: white;
@@ -152,44 +152,44 @@ body {
     background-color: lightblue;
 
     background-image:
-            linear-gradient(
-                to right,
-                rgba(10, 20, 35, 0.85),
-                rgba(10, 20, 33, 0.02)
-            ),                
-            url("./img/welcome-section.png");
+        linear-gradient(
+            to right,
+            rgba(10, 20, 35, 0.85),
+            rgba(10, 20, 33, 0.02)
+        ),
+        url("./img/welcome-section.png");
+
     background-size: cover;
     background-position: right center;
     background-repeat: no-repeat;
 
     display: flex;
     justify-content: space-between;
-    align-items: left;
+    align-items: center;
 
     padding: 30px 45px;
-    box-sizing: border-box;
     border-radius: 12px;
     margin-bottom: 25px;
     color: white;
 }
 
-.welcome-content{
+.welcome-content {
     max-width: 520px;
 }
 
-.welcome-content h1{
+.welcome-content h1 {
     font-size: 46px;
     font-weight: 800;
     letter-spacing: -1.5px;
-    margin:0;
+    margin: 0;
     line-height: 1.1;
     color: white;
 }
 
-.welcome-content h2{
+.welcome-content h2 {
     font-size: 27px;
     font-weight: 600;
-    margin:8px 0 12px;
+    margin: 8px 0 12px;
     color: white;
 }
 
@@ -306,6 +306,7 @@ body {
 
 .primary-btn:hover {
     background-color: #125fc4;
+    transform: translateY(-2px);
 }
 
 .feature-card a:hover {
@@ -314,7 +315,7 @@ body {
 
 
 /* ========================================
-   9. RESPONSIVE DESIGN
+   9. DASHBOARD RESPONSIVE DESIGN
 ======================================== */
 
 @media (max-width: 1000px) {
@@ -327,7 +328,6 @@ body {
         grid-template-columns: 1fr;
     }
 }
-
 
 @media (max-width: 700px) {
 
@@ -359,7 +359,6 @@ body {
     }
 }
 
-
 @media (max-width: 600px) {
 
     .welcome-section {
@@ -372,43 +371,59 @@ body {
     }
 }
 
+
 /* ========================================
    10. REGISTER PAGE
 ======================================== */
 
 .split {
     width: 50%;
-    height: 100vh;
+    min-height: 100vh;
     position: fixed;
     top: 0;
     overflow-y: auto;
 }
 
-/* =========================
-   LEFT BRANDING SECTION
-========================= */
+
+/* LEFT BRANDING SECTION */
 
 .left {
     left: 0;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     padding: 60px;
 
     background:
-        radial-gradient(circle at 15% 15%, rgba(75, 139, 232, 0.35), transparent 35%),
-        linear-gradient(145deg, #142541, #244b7e);
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(75, 139, 232, 0.35),
+            transparent 35%
+        ),
+        linear-gradient(
+            145deg,
+            #142541,
+            #244b7e
+        );
 
     color: white;
 }
 
 .brand-content {
+    width: 100%;
     max-width: 480px;
+
     padding: 45px;
+
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 24px;
+
     background: rgba(255, 255, 255, 0.07);
+
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+
     backdrop-filter: blur(8px);
 }
 
@@ -432,27 +447,34 @@ body {
     line-height: 1.8;
 }
 
-/* =========================
-   RIGHT FORM SECTION
-========================= */
+
+/* RIGHT FORM SECTION */
 
 .right {
     right: 0;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     padding: 35px;
-    background: linear-gradient(135deg, #f4f7fc, #eaf0f9);
+
+    background: linear-gradient(
+        135deg,
+        #f4f7fc,
+        #eaf0f9
+    );
 }
 
-/* =========================
-   REGISTRATION CARD
-========================= */
+
+/* REGISTRATION CARD */
 
 .auth-card {
     width: 100%;
     max-width: 470px;
+
     padding: 38px;
+
     background-color: #ffffff;
     border-radius: 20px;
 
@@ -476,9 +498,10 @@ body {
     line-height: 1.6;
 }
 
-/* =========================
-   FORM INPUTS
-========================= */
+
+/* ========================================
+   11. FORM INPUTS
+======================================== */
 
 .form-group {
     margin-bottom: 18px;
@@ -487,6 +510,7 @@ body {
 .form-group > label {
     display: block;
     margin-bottom: 8px;
+
     color: #263b60;
     font-size: 14px;
     font-weight: 600;
@@ -497,16 +521,19 @@ body {
 .form-group input[type="password"] {
     width: 100%;
     height: 48px;
+
     padding: 0 14px;
 
     border: 1px solid #dce3ed;
     border-radius: 9px;
 
     background-color: #f8faff;
+
     font-size: 14px;
     color: #263b60;
 
     outline: none;
+
     transition: all 0.25s ease;
 }
 
@@ -521,9 +548,10 @@ body {
     box-shadow: 0 0 0 4px rgba(60, 120, 207, 0.12);
 }
 
-/* =========================
-   ACCOUNT TYPE
-========================= */
+
+/* ========================================
+   12. ACCOUNT TYPE
+======================================== */
 
 .role-options {
     display: flex;
@@ -532,16 +560,19 @@ body {
 
 .role-options label {
     flex: 1;
+
     display: flex;
     align-items: center;
     gap: 9px;
 
     padding: 13px;
+
     border: 1px solid #dce3ed;
     border-radius: 9px;
 
     color: #44536a;
     background-color: #f8faff;
+
     font-size: 14px;
     cursor: pointer;
 
@@ -558,32 +589,42 @@ body {
 }
 
 /* Highlight selected role */
+
 .role-options label:has(input:checked) {
     border-color: #356bc0;
     background-color: #edf4ff;
     color: #244c8d;
 }
 
-/* =========================
-   REGISTER BUTTON
-========================= */
+
+/* ========================================
+   13. REGISTER BUTTON
+======================================== */
 
 .auth-button {
     width: 100%;
     height: 50px;
+
     margin-top: 8px;
 
     border: none;
     border-radius: 10px;
 
-    background: linear-gradient(135deg, #3978cf, #244c8d);
+    background: linear-gradient(
+        135deg,
+        #3978cf,
+        #244c8d
+    );
+
     color: white;
 
     font-size: 15px;
     font-weight: 600;
+
     cursor: pointer;
 
     box-shadow: 0 5px 15px rgba(53, 107, 192, 0.2);
+
     transition: all 0.25s ease;
 }
 
@@ -596,13 +637,60 @@ body {
     transform: translateY(0);
 }
 
-/* =========================
-   LOGIN FOOTER
-========================= */
+
+/* ========================================
+   14. ERROR MESSAGE
+======================================== */
+
+.error-message {
+    background-color: #fff1f1;
+
+    border: 1px solid #f5b5b5;
+    border-radius: 9px;
+
+    padding: 12px 18px;
+    margin-bottom: 20px;
+
+    color: #c62828;
+    font-size: 13px;
+}
+
+.error-message ul {
+    padding-left: 18px;
+    margin: 0;
+}
+
+.error-message li {
+    margin: 5px 0;
+}
+
+
+/* ========================================
+   15. SUCCESS MESSAGE
+======================================== */
+
+.success-message {
+    background-color: #e8f5e9;
+
+    border: 1px solid #a5d6a7;
+    border-radius: 9px;
+
+    padding: 12px 18px;
+    margin-bottom: 20px;
+
+    color: #2e7d32;
+    font-size: 13px;
+}
+
+
+/* ========================================
+   16. LOGIN FOOTER
+======================================== */
 
 .auth-footer {
     text-align: center;
     margin-top: 22px;
+
     color: #8793a5;
     font-size: 14px;
 }
@@ -617,11 +705,13 @@ body {
     text-decoration: underline;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+
+/* ========================================
+   17. REGISTER RESPONSIVE DESIGN
+======================================== */
 
 @media (max-width: 1000px) {
+
     .left {
         padding: 30px;
     }
@@ -640,10 +730,11 @@ body {
 }
 
 @media (max-width: 768px) {
+
     .split {
         width: 100%;
         position: relative;
-        height: auto;
+        min-height: auto;
     }
 
     .left {
@@ -657,6 +748,7 @@ body {
 }
 
 @media (max-width: 480px) {
+
     .brand-content {
         padding: 25px;
     }
@@ -667,5 +759,9 @@ body {
 
     .auth-card {
         padding: 25px 20px;
+    }
+
+    .role-options {
+        flex-direction: column;
     }
 }
