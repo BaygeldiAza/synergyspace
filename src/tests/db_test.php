@@ -11,9 +11,6 @@
         <?php 
             require_once __DIR__ . "/../config/database.php";
             echo "Database connected successfully!";
-            $result = $pdo->query("SELECT DATABASE()");
-
-            echo "Current database: " . $result->fetchColumn();
         ?>
 
     </h1>  
