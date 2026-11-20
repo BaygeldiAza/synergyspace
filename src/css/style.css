@@ -765,3 +765,137 @@ body {
         flex-direction: column;
     }
 }
+
+
+/* Login page */
+
+.split-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.split-container .split {
+    position: relative;
+    min-height: 100vh;
+    overflow-y: auto;
+}
+
+.split {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.split.left {
+    background: linear-gradient(135deg, #172b4d, #263f68);
+    color: white;
+}
+
+.brand-content {
+    max-width: 450px;
+}
+
+.brand-content h1 {
+    font-size: 42px;
+    margin-bottom: 20px;
+}
+
+.brand-content h2 {
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+.brand-content p {
+    line-height: 1.7;
+    color: #dce5f3;
+}
+
+.split.right {
+    background: #f5f7fb;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card h1 {
+    margin-bottom: 10px;
+    color: #172b4d;
+}
+
+.auth-subtitle {
+    color: #777;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #203b63;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.auth-btn:hover {
+    background: #152b4b;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.auth-switch a {
+    color: #203b63;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.error-message {
+    background: #ffe8e8;
+    color: #b42318;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .split-container {
+        flex-direction: column;
+    }
+
+    .split {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 50vh;
+    }
+}
