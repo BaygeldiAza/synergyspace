@@ -1,12 +1,25 @@
 
+
 <?php
 
 $errors = [];
 $success = "";
 
 // Process the form when submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    error_log("=== NEW REGISTRATION TEST ===");
 
+    error_log("POST contains password: " .
+        (array_key_exists("password", $_POST) ? "YES" : "NO")
+    );
+
+    error_log("Password length immediately after POST: " .
+        strlen($_POST["password"] ?? "")
+    );
+
+    error_log("Confirm password length: " .
+        strlen($_POST["confirm_password"] ?? "")
+    );
     // 1. Get form data
     $full_name = trim($_POST["full_name"] ?? "");
     $email = mb_strtolower(trim($_POST["email"] ?? ""));
@@ -15,26 +28,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $role = $_POST["role"] ?? "";
 
     // 2. Validate full name
-    if (empty($full_name)) {
+    if ($full_name === "") {
         $errors[] = "Full name is required.";
     }
 
     // 3. Validate email
-    if (empty($email)) {
+    if ($email === "") {
         $errors[] = "Email is required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Please enter a valid email address.";
     }
 
     // 4. Validate password
-    if (empty($password)) {
+    if ($password === "") {
         $errors[] = "Password is required.";
     } elseif (strlen($password) < 8) {
         $errors[] = "Password must contain at least 8 characters.";
     }
 
     // 5. Confirm password
-    if (empty($confirm_password)) {
+    if ($confirm_password === "") {
         $errors[] = "Please confirm your password.";
     } elseif ($password !== $confirm_password) {
         $errors[] = "Passwords do not match.";
@@ -45,16 +58,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = "Please select a valid account type.";
     }
 
-    // 7. Insert data if validation succeeds
+    // 7. Register user if validation succeeds
     if (empty($errors)) {
 
         require_once __DIR__ . "/config/database.php";
 
         try {
 
-            // Check if email already exists
+            // Check whether email already exists
             $checkEmail = $pdo->prepare(
-                "SELECT id FROM users WHERE email = ?"
+                "SELECT id FROM users WHERE email = ? LIMIT 1"
             );
 
             $checkEmail->execute([$email]);
@@ -63,21 +76,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 $errors[] = "This email is already registered.";
 
-            } else {
+            }else {
+                error_log("Password length before hashing: " . strlen($password));
 
-                // Hash the password
-                $password_hash = password_hash(
-                    $password,
-                    PASSWORD_DEFAULT
+                // 1. Generate password hash
+                $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+                error_log("REGISTER TEST: Password length: " . strlen($password));
+                error_log("REGISTER TEST: Hash verification: " .
+                    (password_verify($password, $password_hash) ? "PASS" : "FAIL")
                 );
-
-                // Start transaction
+                // 2. Start transaction
                 $pdo->beginTransaction();
 
-                // Insert into users table
+                // 3. Insert user
                 $insertUser = $pdo->prepare(
                     "INSERT INTO users (email, password_hash, role)
-                     VALUES (?, ?, ?)"
+                    VALUES (?, ?, ?)"
                 );
 
                 $insertUser->execute([
@@ -86,13 +101,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $role
                 ]);
 
-                // Get the newly created user ID
+                // 4. Get the newly inserted user ID
                 $user_id = $pdo->lastInsertId();
 
-                // Insert into profiles table
+                // 5. Retrieve the stored password hash
+                $checkHash = $pdo->prepare(
+                    "SELECT password_hash FROM users WHERE id = ?"
+                );
+
+                $checkHash->execute([$user_id]);
+
+                $stored_hash = $checkHash->fetchColumn();
+
+                // 6. Verify the stored hash
+                if (
+                    $stored_hash === false ||
+                    !password_verify($password, $stored_hash)
+                ) {
+                    throw new PDOException(
+                        "Stored password hash verification failed."
+                    );
+                }
+
+                // 7. Insert user profile
                 $insertProfile = $pdo->prepare(
                     "INSERT INTO profiles (user_id, full_name)
-                     VALUES (?, ?)"
+                    VALUES (?, ?)"
                 );
 
                 $insertProfile->execute([
@@ -100,26 +134,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $full_name
                 ]);
 
-                // Save both insertions
+                // 8. Commit transaction
                 $pdo->commit();
 
                 $success = "Account created successfully! You can now log in.";
 
                 $_POST = [];
-
             }
 
         } catch (PDOException $e) {
 
-            // Undo changes if something fails
+            // Roll back if something fails
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
 
             $errors[] = "Registration failed. Please try again.";
 
-            // Log actual error for debugging
-            error_log($e->getMessage());
+            // Log actual error
+            error_log("Registration error: " . $e->getMessage());
         }
     }
 }

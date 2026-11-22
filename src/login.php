@@ -1,4 +1,5 @@
 
+
 <?php
 session_start();
 
@@ -9,64 +10,70 @@ $email = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // 1. Get form data
+    // Get form data
     $email = mb_strtolower(trim($_POST["email"] ?? ""));
     $password = $_POST["password"] ?? "";
 
-    // 2. Validate email
-    if (empty($email)) {
+    // Validate email
+    if ($email === "") {
         $errors[] = "Please enter your email.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Please enter a valid email address.";
     }
 
-    // 3. Validate password
+    // Validate password
     if ($password === "") {
         $errors[] = "Please enter your password.";
     }
 
-    // 4. Check database
     if (empty($errors)) {
 
         try {
 
+            // Find user
             $sql = "SELECT id, email, password_hash, role
                     FROM users
-                    WHERE LOWER(email) = ?
+                    WHERE email = ?
                     LIMIT 1";
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$email]);
 
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = $stmt->fetch();
+            error_log("LOGIN DEBUG: User found: " . ($user ? "YES" : "NO"));
+            
+            if ($user) {
+                error_log("LOGIN DEBUG: User ID: " . $user["id"]);
+                error_log("LOGIN DEBUG: Hash length: " . strlen($user["password_hash"]));
+                error_log("LOGIN DEBUG: Verification: " .
+                    (password_verify($password, $user["password_hash"]) ? "PASS" : "FAIL")
+                );
+            }
 
-            // 5. Check whether the account exists
-            if (!$user) {
+            // Check password
+            if ($user && password_verify($password, $user["password_hash"])) {
 
-                $errors[] = "Invalid email or password.";
+                // Create a new session ID
+                session_regenerate_id(true);
+
+                // Save user information
+                $_SESSION["user_id"] = $user["id"];
+                $_SESSION["email"] = $user["email"];
+                $_SESSION["role"] = $user["role"];
+
+                // Redirect based on role
+                if ($user["role"] === "owner") {
+                    header("Location: owner/dashboard.php");
+                } else {
+                    header("Location: tenant/dashboard.php");
+                }
+
+                exit;
 
             } else {
 
-                // 6. Verify the entered password against its stored hash
-                if (password_verify($password, $user["password_hash"])) {
+                $errors[] = "Invalid email or password.";
 
-                    // 7. Regenerate session ID
-                    session_regenerate_id(true);
-
-                    // 8. Store user information
-                    $_SESSION["user_id"] = $user["id"];
-                    $_SESSION["email"] = $user["email"];
-                    $_SESSION["role"] = $user["role"];
-
-                    // 9. Redirect to homepage
-                    header("Location: index.php");
-                    exit;
-
-                } else {
-
-                    $errors[] = "Invalid email or password.";
-
-                }
             }
 
         } catch (PDOException $e) {
@@ -78,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
