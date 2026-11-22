@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 1. Get form data
     $full_name = trim($_POST["full_name"] ?? "");
-    $email = trim($_POST["email"] ?? "");
+    $email = mb_strtolower(trim($_POST["email"] ?? ""));
     $password = $_POST["password"] ?? "";
     $confirm_password = $_POST["confirm_password"] ?? "";
     $role = $_POST["role"] ?? "";
@@ -103,7 +103,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Save both insertions
                 $pdo->commit();
 
-                $success = "Account created successfully!";
+                $success = "Account created successfully! You can now log in.";
+
+                $_POST = [];
 
             }
 
