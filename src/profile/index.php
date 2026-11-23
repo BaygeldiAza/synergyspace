@@ -16,6 +16,8 @@ $profile = getCurrentUserProfile($pdo);
 $profileFields = $profile ?? [];
 $skills = getCurrentUserSkills($pdo);
 $interests = getCurrentUserInterests($pdo);
+$profileSuccess = $_SESSION['profile_success'] ?? '';
+unset($_SESSION['profile_success']);
 
 $fullName = trim((string) ($profileFields['full_name'] ?? ''));
 $location = trim((string) ($profileFields['location'] ?? ''));
@@ -47,6 +49,13 @@ $activePage = 'profile';
 require_once __DIR__ . '/../includes/header.php';
 ?>
     <div class="profile-content">
+        <?php if ($profileSuccess !== ''): ?>
+            <div class="profile-alert profile-alert-success" role="status">
+                <i class="fas fa-circle-check" aria-hidden="true"></i>
+                <?= profileEscape($profileSuccess) ?>
+            </div>
+        <?php endif; ?>
+
         <div class="profile-overview-heading">
             <div>
                 <span class="profile-eyebrow">Your account</span>
@@ -95,16 +104,10 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
 
                 <div class="profile-edit-action">
-                    <button
-                        type="button"
-                        class="profile-primary-action profile-edit-disabled"
-                        disabled
-                        title="Profile editing is not available yet"
-                    >
+                    <a href="./edit.php" class="profile-primary-action">
                         <i class="fas fa-pen" aria-hidden="true"></i>
                         Edit Profile
-                    </button>
-                    <small>Editing coming soon</small>
+                    </a>
                 </div>
             </div>
         </section>
