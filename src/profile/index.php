@@ -23,9 +23,7 @@ $fullName = trim((string) ($profileFields['full_name'] ?? ''));
 $location = trim((string) ($profileFields['location'] ?? ''));
 $bio = trim((string) ($profileFields['bio'] ?? ''));
 $initials = $fullName !== '' ? profileInitials($fullName) : '';
-$profileImage = !empty($profileFields['profile_image'])
-    ? '../' . ltrim($profileFields['profile_image'], '/')
-    : null;
+$profileImage = profileCurrentUserImageUrl($profileFields['profile_image'] ?? null);
 $accountCreatedAt = null;
 if (!empty($account['created_at'])) {
     $createdAtTimestamp = strtotime($account['created_at']);

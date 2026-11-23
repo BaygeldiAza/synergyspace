@@ -61,46 +61,14 @@ try {
     $oldStmt->execute([$userId]);
     $oldImagePath = $oldStmt->fetchColumn();
 
-    if (!empty($_FILES['profile_image']) && $_FILES['profile_image']['error'] !== UPLOAD_ERR_NO_FILE) {
-        $upload = $_FILES['profile_image'];
-
-        if (!isset($upload['error']) || $upload['error'] !== UPLOAD_ERR_OK) {
-            throw new RuntimeException('The profile photo could not be uploaded.');
+    if (array_key_exists('profile_image', $_FILES)) {
+        $imageUpload = $_FILES['profile_image'];
+        if (!is_array($imageUpload) || !is_int($imageUpload['error'] ?? null)) {
+            throw new InvalidArgumentException('The image upload is invalid.');
         }
-
-        if (!isset($upload['tmp_name']) || !is_uploaded_file($upload['tmp_name'])) {
-            throw new RuntimeException('The profile photo upload was invalid.');
+        if ($imageUpload['error'] !== UPLOAD_ERR_NO_FILE) {
+            $profileImagePath = storeCurrentUserProfileImage($imageUpload);
         }
-
-        if (!isset($upload['size']) || $upload['size'] > 5 * 1024 * 1024) {
-            throw new RuntimeException('The profile photo must be 5 MB or smaller.');
-        }
-
-        $imageInfo = getimagesize($upload['tmp_name']);
-        $allowedTypes = [
-            IMAGETYPE_JPEG => 'jpg',
-            IMAGETYPE_PNG => 'png',
-            IMAGETYPE_WEBP => 'webp',
-        ];
-
-        if ($imageInfo === false || !isset($allowedTypes[$imageInfo[2]])) {
-            throw new RuntimeException('Please upload a JPG, PNG or WEBP image.');
-        }
-
-        $uploadDirectory = __DIR__ . '/../uploads/profiles';
-        if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0755, true)) {
-            throw new RuntimeException('The profile image directory is unavailable.');
-        }
-
-        $extension = $allowedTypes[$imageInfo[2]];
-        $filename = 'profile_' . $userId . '_' . bin2hex(random_bytes(12)) . '.' . $extension;
-        $destination = $uploadDirectory . '/' . $filename;
-
-        if (!move_uploaded_file($upload['tmp_name'], $destination)) {
-            throw new RuntimeException('The profile photo could not be saved.');
-        }
-
-        $profileImagePath = 'uploads/profiles/' . $filename;
     }
 
     $pdo->beginTransaction();
@@ -144,10 +112,8 @@ try {
     $pdo->commit();
 
     if ($profileImagePath && is_string($oldImagePath) && $oldImagePath !== '') {
-        $oldImageName = basename($oldImagePath);
-        $oldImageFullPath = __DIR__ . '/../uploads/profiles/' . $oldImageName;
-        if (is_file($oldImageFullPath)) {
-            unlink($oldImageFullPath);
+        if (!deleteCurrentUserProfileImage($oldImagePath)) {
+            error_log('Previous profile image could not be deleted for user ' . $userId);
         }
     }
 
@@ -158,16 +124,19 @@ try {
     }
 
     if ($profileImagePath) {
-        $newImageFullPath = __DIR__ . '/../' . $profileImagePath;
-        if (is_file($newImageFullPath)) {
-            unlink($newImageFullPath);
-        }
+        deleteCurrentUserProfileImage($profileImagePath);
     }
 
     error_log('Profile update error: ' . $e->getMessage());
-    $_SESSION['profile_error'] = $e instanceof RuntimeException
-        ? $e->getMessage()
-        : 'Your profile could not be updated. Please try again.';
+    if ($e instanceof InvalidArgumentException) {
+        $_SESSION['profile_error'] = $e->getMessage();
+    } elseif ($e instanceof PDOException) {
+        $_SESSION['profile_error'] = 'Your profile could not be updated. Please try again.';
+    } elseif ($e instanceof RuntimeException) {
+        $_SESSION['profile_error'] = $e->getMessage();
+    } else {
+        $_SESSION['profile_error'] = 'Your profile could not be updated. Please try again.';
+    }
 }
 
 header('Location: ../profile/index.php');

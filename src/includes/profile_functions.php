@@ -89,7 +89,10 @@ function updateCurrentUserProfile(PDO $pdo, array $profileData)
         throw new InvalidArgumentException('Location must be 255 characters or fewer.');
     }
 
-    if ($profileImage !== null && (!is_string($profileImage) || mb_strlen($profileImage) > 255)) {
+    if (
+        $profileImage !== null
+        && (!is_string($profileImage) || profileCurrentUserImageFilename($profileImage) === null)
+    ) {
         throw new InvalidArgumentException('Profile image path is invalid.');
     }
 
@@ -109,6 +112,183 @@ function updateCurrentUserProfile(PDO $pdo, array $profileData)
         $location !== '' ? $location : null,
         $profileImage,
     ]);
+}
+
+function profileImageUploadDirectory()
+{
+    $projectRoot = realpath(dirname(__DIR__));
+    if ($projectRoot === false) {
+        return null;
+    }
+
+    $expectedDirectory = $projectRoot . '/uploads/profiles';
+    if (is_link($expectedDirectory)) {
+        return null;
+    }
+
+    $realDirectory = realpath($expectedDirectory);
+    if ($realDirectory === false || $realDirectory !== $expectedDirectory) {
+        return null;
+    }
+
+    return $realDirectory;
+}
+
+function validateProfileImageFile($filePath, $originalName)
+{
+    if (!is_string($filePath) || !is_file($filePath) || !is_string($originalName)) {
+        throw new InvalidArgumentException('The image upload is invalid.');
+    }
+
+    $actualSize = filesize($filePath);
+    if ($actualSize === false) {
+        throw new RuntimeException('The uploaded image could not be checked.');
+    }
+    if ($actualSize > 2 * 1024 * 1024) {
+        throw new InvalidArgumentException('The image must be no larger than 2 MB.');
+    }
+
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+    if (!in_array($extension, $allowedExtensions, true)) {
+        throw new InvalidArgumentException('Choose a JPG, JPEG, PNG, or WebP image.');
+    }
+
+    $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
+    if ($fileInfo === false) {
+        throw new RuntimeException('Image type detection is unavailable.');
+    }
+
+    $actualMime = finfo_file($fileInfo, $filePath);
+    finfo_close($fileInfo);
+
+    $mimeToExtension = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+    if ($actualMime === false || !isset($mimeToExtension[$actualMime])) {
+        throw new InvalidArgumentException('Choose a valid JPG, JPEG, PNG, or WebP image.');
+    }
+
+    $imageInfo = getimagesize($filePath);
+    if ($imageInfo === false || ($imageInfo['mime'] ?? null) !== $actualMime) {
+        throw new InvalidArgumentException('The uploaded file is not a valid supported image.');
+    }
+
+    return $mimeToExtension[$actualMime];
+}
+
+function storeCurrentUserProfileImage(array $upload)
+{
+    $uploadError = $upload['error'] ?? null;
+    if (!is_int($uploadError)) {
+        throw new InvalidArgumentException('The image upload is invalid.');
+    }
+
+    if ($uploadError !== UPLOAD_ERR_OK) {
+        if ($uploadError === UPLOAD_ERR_INI_SIZE || $uploadError === UPLOAD_ERR_FORM_SIZE) {
+            throw new InvalidArgumentException('The image must be no larger than 2 MB.');
+        }
+        if ($uploadError === UPLOAD_ERR_PARTIAL) {
+            throw new InvalidArgumentException('The image upload was incomplete. Please try again.');
+        }
+        if ($uploadError === UPLOAD_ERR_NO_FILE) {
+            throw new InvalidArgumentException('Choose an image to upload.');
+        }
+
+        throw new RuntimeException('The image could not be uploaded. Please try again.');
+    }
+
+    $temporaryPath = $upload['tmp_name'] ?? null;
+    if (!is_string($temporaryPath) || !is_uploaded_file($temporaryPath)) {
+        throw new InvalidArgumentException('The image upload is invalid.');
+    }
+
+    $originalName = $upload['name'] ?? null;
+    $canonicalExtension = validateProfileImageFile($temporaryPath, $originalName);
+
+    $uploadDirectory = dirname(__DIR__) . '/uploads/profiles';
+    if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0750, true) && !is_dir($uploadDirectory)) {
+        throw new RuntimeException('The profile image directory is unavailable.');
+    }
+
+    $realDirectory = profileImageUploadDirectory();
+    if ($realDirectory === null || !is_writable($realDirectory)) {
+        throw new RuntimeException('The profile image directory is unavailable.');
+    }
+
+    $userId = profileCurrentUserId();
+    $filename = 'profile_' . $userId . '_' . bin2hex(random_bytes(16)) . '.' . $canonicalExtension;
+    $destination = $realDirectory . DIRECTORY_SEPARATOR . $filename;
+
+    if (file_exists($destination) || is_link($destination)) {
+        throw new RuntimeException('A unique profile image name could not be generated.');
+    }
+
+    if (!move_uploaded_file($temporaryPath, $destination)) {
+        throw new RuntimeException('The profile image could not be saved.');
+    }
+
+    return 'uploads/profiles/' . $filename;
+}
+
+function profileCurrentUserImageFilename($storedPath)
+{
+    if (!is_string($storedPath)) {
+        return null;
+    }
+
+    $userId = profileCurrentUserId();
+    $pattern = '~\Auploads/profiles/profile_' . preg_quote((string) $userId, '~')
+        . '_(?:[a-f0-9]{24}|[a-f0-9]{32})\.(?:jpg|jpeg|png|webp)\z~D';
+    if (!preg_match($pattern, $storedPath)) {
+        return null;
+    }
+
+    $filename = basename($storedPath);
+    $directory = profileImageUploadDirectory();
+    if ($directory === null) {
+        return null;
+    }
+
+    $filePath = $directory . DIRECTORY_SEPARATOR . $filename;
+    $realFilePath = realpath($filePath);
+    if (
+        $realFilePath === false
+        || is_link($filePath)
+        || !is_file($realFilePath)
+        || dirname($realFilePath) !== $directory
+    ) {
+        return null;
+    }
+
+    return $filename;
+}
+
+function profileCurrentUserImageUrl($storedPath, $urlPrefix = '../uploads/profiles/')
+{
+    $filename = profileCurrentUserImageFilename($storedPath);
+    if ($filename === null) {
+        return null;
+    }
+
+    return $urlPrefix . rawurlencode($filename);
+}
+
+function deleteCurrentUserProfileImage($storedPath)
+{
+    $filename = profileCurrentUserImageFilename($storedPath);
+    if ($filename === null) {
+        return false;
+    }
+
+    $directory = profileImageUploadDirectory();
+    if ($directory === null) {
+        return false;
+    }
+
+    return unlink($directory . DIRECTORY_SEPARATOR . $filename);
 }
 
 function profileEscape($value)

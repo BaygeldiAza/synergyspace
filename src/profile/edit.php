@@ -17,6 +17,7 @@ $errors = [];
 $fullName = (string) ($profile['full_name'] ?? '');
 $bio = (string) ($profile['bio'] ?? '');
 $location = (string) ($profile['location'] ?? '');
+$currentImageUrl = profileCurrentUserImageUrl($profile['profile_image'] ?? null);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (['full_name' => 'Full name', 'bio' => 'Biography', 'location' => 'Location'] as $field => $label) {
@@ -47,22 +48,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Location must be 255 characters or fewer.';
     }
 
+    $imageUpload = null;
+    $hasImageUpload = false;
+    if (array_key_exists('profile_image', $_FILES)) {
+        $imageUpload = $_FILES['profile_image'];
+        if (!is_array($imageUpload) || !is_int($imageUpload['error'] ?? null)) {
+            $errors[] = 'The image upload is invalid.';
+        } elseif ($imageUpload['error'] !== UPLOAD_ERR_NO_FILE) {
+            $hasImageUpload = true;
+        }
+    }
+
     if (!$errors) {
+        $newImagePath = null;
+
         try {
+            if ($hasImageUpload) {
+                $newImagePath = storeCurrentUserProfileImage($imageUpload);
+            }
+
             updateCurrentUserProfile($pdo, [
                 'full_name' => $fullName,
                 'bio' => $bio,
                 'location' => $location,
+                'profile_image' => $newImagePath,
             ]);
+
+            if ($newImagePath !== null && !empty($profile['profile_image'])) {
+                if (!deleteCurrentUserProfileImage($profile['profile_image'])) {
+                    error_log('Previous profile image could not be deleted for user ' . profileCurrentUserId());
+                }
+            }
 
             $_SESSION['profile_success'] = 'Your profile has been updated.';
             header('Location: ./index.php');
             exit;
         } catch (InvalidArgumentException $e) {
+            if ($newImagePath !== null) {
+                deleteCurrentUserProfileImage($newImagePath);
+            }
             $errors[] = $e->getMessage();
         } catch (PDOException $e) {
+            if ($newImagePath !== null) {
+                deleteCurrentUserProfileImage($newImagePath);
+            }
             error_log('Profile edit database error: ' . $e->getMessage());
             $errors[] = 'Your profile could not be saved. Please try again.';
+        } catch (RuntimeException $e) {
+            if ($newImagePath !== null) {
+                deleteCurrentUserProfileImage($newImagePath);
+            }
+            $errors[] = $e->getMessage();
         }
     }
 }
@@ -108,7 +144,7 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         <?php endif; ?>
 
-        <form action="./edit.php" method="POST" class="profile-edit-form">
+        <form action="./edit.php" method="POST" enctype="multipart/form-data" class="profile-edit-form">
             <input type="hidden" name="csrf_token" value="<?= profileEscape(profileCsrfToken()) ?>">
 
             <section class="profile-edit-section" aria-labelledby="personalDetailsHeading">
@@ -117,6 +153,35 @@ require_once __DIR__ . '/../includes/header.php';
                     <div>
                         <h2 id="personalDetailsHeading">Personal details</h2>
                         <p>Your name, location, and biography help people get to know you.</p>
+                    </div>
+                </div>
+
+                <div class="profile-image-upload">
+                    <div class="profile-image-preview" id="profileImagePreview">
+                        <?php if ($currentImageUrl): ?>
+                            <img src="<?= profileEscape($currentImageUrl) ?>" alt="Current profile picture">
+                        <?php elseif (!empty($profile['full_name'])): ?>
+                            <span><?= profileEscape(profileInitials($profile['full_name'])) ?></span>
+                        <?php else: ?>
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                        <?php endif; ?>
+                    </div>
+                    <div class="profile-image-upload-copy">
+                        <strong>Profile picture</strong>
+                        <p>Use a clear image so people can recognize you around SynergySpace.</p>
+                        <label class="profile-upload-button" for="profile_image">
+                            <i class="fas fa-camera" aria-hidden="true"></i>
+                            Choose image
+                        </label>
+                        <input
+                            id="profile_image"
+                            name="profile_image"
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                            aria-describedby="profileImageHelp profileImageMessage"
+                        >
+                        <small id="profileImageHelp">JPG, JPEG, PNG, or WebP · Maximum 2 MB · Format detected automatically</small>
+                        <small id="profileImageMessage" class="profile-image-message" role="status"></small>
                     </div>
                 </div>
 

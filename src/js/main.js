@@ -59,21 +59,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var photoInput = document.getElementById('profile_image');
-    var photoPreview = document.querySelector('#profilePhotoPreview');
+    var photoPreview = document.querySelector('#profileImagePreview');
+    var photoMessage = document.getElementById('profileImageMessage');
 
     if (photoInput && photoPreview) {
         photoInput.addEventListener('change', function () {
             var file = photoInput.files && photoInput.files[0];
-            if (!file || !file.type.match(/^image\/(jpeg|png|webp)$/)) {
+            if (!file) {
                 return;
+            }
+
+            var supportedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!supportedTypes.includes(file.type)) {
+                if (photoMessage) {
+                    photoMessage.textContent = 'Choose a JPG, JPEG, PNG, or WebP image.';
+                }
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                if (photoMessage) {
+                    photoMessage.textContent = 'The image must be no larger than 2 MB.';
+                }
+                return;
+            }
+
+            if (photoMessage) {
+                photoMessage.textContent = file.name;
             }
 
             var reader = new FileReader();
             reader.addEventListener('load', function () {
                 var image = document.createElement('img');
                 image.src = reader.result;
-                image.alt = '';
-                image.className = 'profile-photo profile-photo-preview';
+                image.alt = 'Selected profile picture preview';
+                image.className = 'profile-image-preview-photo';
                 photoPreview.replaceChildren(image);
             });
             reader.readAsDataURL(file);

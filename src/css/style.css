@@ -993,6 +993,87 @@ a.profile-nav i {
     grid-column: 1;
 }
 
+.profile-image-upload {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 0 0 26px;
+    padding: 18px;
+    border: 1px solid #e6ecf4;
+    border-radius: 12px;
+    background: linear-gradient(120deg, #fbfdff, #f5f8fc);
+}
+
+.profile-image-preview {
+    width: 96px;
+    height: 96px;
+    flex: 0 0 96px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #315f9f, #65a4e8);
+    box-shadow: 0 6px 18px rgba(34, 54, 87, 0.14);
+    color: #fff;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.profile-image-preview > i {
+    color: #eaf2fc;
+    font-size: 30px;
+}
+
+.profile-image-preview-photo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.profile-image-upload-copy {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.profile-image-upload-copy > strong {
+    color: #2f3d54;
+    font-size: 13px;
+}
+
+.profile-image-upload-copy > p {
+    margin: 0 0 3px;
+    color: #8794a7;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.profile-image-upload-copy > input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.profile-image-upload-copy:focus-within .profile-upload-button {
+    outline: 3px solid rgba(49, 95, 159, 0.18);
+    outline-offset: 2px;
+}
+
+.profile-image-upload-copy > small {
+    color: #97a2b1;
+    font-size: 10px;
+}
+
+.profile-image-upload-copy > .profile-image-message:not(:empty) {
+    color: #5b6d84;
+}
+
 .profile-edit-form .profile-section-heading > span {
     display: grid;
     place-items: center;
@@ -1146,6 +1227,11 @@ a.profile-nav i {
     .profile-form-actions .profile-cancel-button,
     .profile-form-actions .profile-save-button {
         width: 100%;
+    }
+
+    .profile-image-upload {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }
 

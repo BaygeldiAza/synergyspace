@@ -18,6 +18,7 @@ if (!empty($_SESSION['user_id'])) {
     $headerAuthLabel = 'Logout';
 
     require_once __DIR__ . '/../config/database.php';
+    require_once __DIR__ . '/profile_functions.php';
     $headerProfileStmt = $pdo->prepare(
         'SELECT p.full_name, p.profile_image
          FROM profiles p
@@ -29,9 +30,10 @@ if (!empty($_SESSION['user_id'])) {
 
     if ($headerProfile) {
         $headerUserName = $headerProfile['full_name'];
-        $headerUserImage = !empty($headerProfile['profile_image'])
-            ? '/synergyspace/src/' . ltrim($headerProfile['profile_image'], '/')
-            : null;
+        $headerUserImage = profileCurrentUserImageUrl(
+            $headerProfile['profile_image'],
+            '/synergyspace/src/uploads/profiles/'
+        );
         $headerParts = preg_split('/\s+/', trim($headerUserName));
         $headerUserInitial = mb_strtoupper(mb_substr($headerParts[0] ?? 'U', 0, 1));
     } else {
