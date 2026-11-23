@@ -105,17 +105,11 @@ try {
 
     $pdo->beginTransaction();
 
-    $profileUpdate = $pdo->prepare(
-        'UPDATE profiles
-         SET full_name = ?, bio = ?, location = ?, profile_image = COALESCE(?, profile_image)
-         WHERE user_id = ?'
-    );
-    $profileUpdate->execute([
-        $fullName,
-        $bio !== '' ? $bio : null,
-        $location !== '' ? $location : null,
-        $profileImagePath,
-        $userId,
+    updateCurrentUserProfile($pdo, [
+        'full_name' => $fullName,
+        'bio' => $bio,
+        'location' => $location,
+        'profile_image' => $profileImagePath,
     ]);
 
     $pdo->prepare('DELETE FROM user_skills WHERE user_id = ?')->execute([$userId]);

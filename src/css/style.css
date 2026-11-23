@@ -887,6 +887,97 @@ a.profile-nav i {
     }
 }
 
+.profile-overview-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+.profile-overview-heading h1 {
+    margin: 0 0 6px;
+    color: #17213a;
+    font-size: 26px;
+}
+
+.profile-overview-heading p {
+    margin: 0;
+    color: #7d899b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.profile-photo-default {
+    color: #eaf2fc;
+    font-size: 42px;
+}
+
+.profile-edit-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-edit-disabled {
+    border: 0;
+    font: inherit;
+    cursor: not-allowed;
+    opacity: 0.72;
+    box-shadow: none;
+}
+
+.profile-edit-action small {
+    color: #8995a7;
+    font-size: 10px;
+}
+
+.profile-section-icon {
+    width: 35px;
+    height: 35px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #edf4fd;
+    color: #4775aa;
+}
+
+.profile-alert-info {
+    margin-bottom: 18px;
+    border: 1px solid #d5e4f6;
+    background: #f0f6fd;
+    color: #41658c;
+}
+
+.profile-empty > span {
+    color: #98a2b1;
+    font-size: 11px;
+}
+
+@media (max-width: 600px) {
+    .profile-overview-heading {
+        margin-bottom: 16px;
+    }
+
+    .profile-overview-heading h1 {
+        font-size: 22px;
+    }
+
+    .profile-hero-body {
+        gap: 16px;
+    }
+
+    .profile-edit-action {
+        width: 100%;
+        align-items: flex-start;
+        margin-top: 2px;
+    }
+
+    .profile-edit-disabled {
+        width: 100%;
+    }
+}
+
 /* Unified dashboard and home interactions */
 
 .topbar-search {
