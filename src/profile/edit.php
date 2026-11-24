@@ -13,10 +13,15 @@ if ($account === null) {
 }
 
 $profile = getCurrentUserProfile($pdo);
+$allSkills = getAvailableSkills($pdo);
+$skillNameMaximumLength = getSkillNameMaximumLength($pdo);
+$selectedSkills = getCurrentUserSkills($pdo);
+$selectedSkillIds = array_map('intval', array_column($selectedSkills, 'id'));
 $errors = [];
 $fullName = (string) ($profile['full_name'] ?? '');
 $bio = (string) ($profile['bio'] ?? '');
 $location = (string) ($profile['location'] ?? '');
+$newSkillName = '';
 $currentImageUrl = profileCurrentUserImageUrl($profile['profile_image'] ?? null);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,6 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullName = is_string($_POST['full_name'] ?? null) ? trim($_POST['full_name']) : '';
     $bio = is_string($_POST['bio'] ?? null) ? trim($_POST['bio']) : '';
     $location = is_string($_POST['location'] ?? null) ? trim($_POST['location']) : '';
+    $newSkillName = is_string($_POST['new_skill'] ?? null) ? trim($_POST['new_skill']) : '';
+    if (array_key_exists('new_skill', $_POST) && !is_string($_POST['new_skill'])) {
+        $errors[] = 'New skill must be plain text.';
+    }
+
+    try {
+        $selectedSkillIds = normalizeSubmittedSkillIds(
+            array_key_exists('skills', $_POST) ? $_POST['skills'] : []
+        );
+    } catch (InvalidArgumentException $e) {
+        $selectedSkillIds = [];
+        $errors[] = $e->getMessage();
+    }
 
     if (!profileVerifyCsrf($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Your security token is invalid or expired. Please try again.';
@@ -61,18 +79,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         $newImagePath = null;
+        $skillCreationLock = null;
 
         try {
             if ($hasImageUpload) {
                 $newImagePath = storeCurrentUserProfileImage($imageUpload);
             }
 
+            $pdo->beginTransaction();
             updateCurrentUserProfile($pdo, [
                 'full_name' => $fullName,
                 'bio' => $bio,
                 'location' => $location,
                 'profile_image' => $newImagePath,
             ]);
+            $skillCreationLock = saveCurrentUserSkills($pdo, $selectedSkillIds, $newSkillName);
+            $pdo->commit();
+            releaseCurrentUserSkillCreationLock($pdo, $skillCreationLock);
+            $skillCreationLock = null;
 
             if ($newImagePath !== null && !empty($profile['profile_image'])) {
                 if (!deleteCurrentUserProfileImage($profile['profile_image'])) {
@@ -84,17 +108,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ./index.php');
             exit;
         } catch (InvalidArgumentException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            releaseCurrentUserSkillCreationLock($pdo, $skillCreationLock);
             if ($newImagePath !== null) {
                 deleteCurrentUserProfileImage($newImagePath);
             }
             $errors[] = $e->getMessage();
         } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            releaseCurrentUserSkillCreationLock($pdo, $skillCreationLock);
             if ($newImagePath !== null) {
                 deleteCurrentUserProfileImage($newImagePath);
             }
             error_log('Profile edit database error: ' . $e->getMessage());
             $errors[] = 'Your profile could not be saved. Please try again.';
         } catch (RuntimeException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            releaseCurrentUserSkillCreationLock($pdo, $skillCreationLock);
             if ($newImagePath !== null) {
                 deleteCurrentUserProfileImage($newImagePath);
             }
@@ -229,6 +265,72 @@ require_once __DIR__ . '/../includes/header.php';
                             <span><b id="bioCount"><?= mb_strlen($bio) ?></b>/1000</span>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section class="profile-edit-section profile-skills-edit-section" aria-labelledby="skillsEditHeading">
+                <div class="profile-section-heading">
+                    <span><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i></span>
+                    <div>
+                        <h2 id="skillsEditHeading">Your skills</h2>
+                        <p>Select skills to show on your profile, or add one that is not listed.</p>
+                    </div>
+                </div>
+
+                <div class="profile-field profile-field-wide">
+                    <label for="new_skill">Add a skill</label>
+                    <input
+                        id="new_skill"
+                        name="new_skill"
+                        type="text"
+                        <?= $skillNameMaximumLength !== null ? 'maxlength="' . $skillNameMaximumLength . '"' : '' ?>
+                        value="<?= profileEscape($newSkillName) ?>"
+                        placeholder="e.g. Product design"
+                        aria-describedby="newSkillHelp"
+                    >
+                    <small id="newSkillHelp" class="profile-input-hint">If the skill already exists, it will be selected rather than added again.</small>
+                </div>
+
+                <div class="profile-selection-group">
+                    <h3>Selected skills</h3>
+                    <div class="profile-tag-list profile-selected-skill-list" data-selected-skill-list aria-live="polite">
+                        <?php foreach ($allSkills as $skill): ?>
+                            <?php if (in_array((int) $skill['id'], $selectedSkillIds, true)): ?>
+                                <span class="profile-tag profile-tag-skill" data-skill-chip="<?= (int) $skill['id'] ?>">
+                                    <?= profileEscape($skill['name']) ?>
+                                    <button
+                                        type="button"
+                                        class="profile-skill-remove"
+                                        data-remove-skill="<?= (int) $skill['id'] ?>"
+                                        aria-label="Remove <?= profileEscape($skill['name']) ?> from selected skills"
+                                    ><i class="fas fa-xmark" aria-hidden="true"></i></button>
+                                </span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        <span class="profile-skill-empty" data-selected-skill-empty<?= $selectedSkillIds ? ' hidden' : '' ?>>No skills selected yet.</span>
+                    </div>
+                </div>
+
+                <div class="profile-selection-group">
+                    <h3>Available skills</h3>
+                    <?php if ($allSkills): ?>
+                        <div class="profile-skill-options">
+                            <?php foreach ($allSkills as $skill): ?>
+                                <label class="profile-skill-option">
+                                    <input
+                                        type="checkbox"
+                                        name="skills[]"
+                                        value="<?= (int) $skill['id'] ?>"
+                                        data-skill-name="<?= profileEscape($skill['name']) ?>"
+                                        <?= in_array((int) $skill['id'], $selectedSkillIds, true) ? 'checked' : '' ?>
+                                    >
+                                    <span><?= profileEscape($skill['name']) ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="profile-skill-empty">There are no shared skills yet. Add one above to get started.</p>
+                    <?php endif; ?>
                 </div>
             </section>
 

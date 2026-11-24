@@ -56,6 +56,143 @@ function getCurrentUserSkills(PDO $pdo)
     return $stmt->fetchAll();
 }
 
+function getAvailableSkills(PDO $pdo)
+{
+    $stmt = $pdo->query('SELECT id, name FROM skills ORDER BY name');
+
+    return $stmt->fetchAll();
+}
+
+function getSkillNameMaximumLength(PDO $pdo)
+{
+    $stmt = $pdo->prepare(
+        'SELECT CHARACTER_MAXIMUM_LENGTH
+         FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = ?
+           AND COLUMN_NAME = ?'
+    );
+    $stmt->execute(['skills', 'name']);
+    $maximumLength = $stmt->fetchColumn();
+
+    return $maximumLength === false || $maximumLength === null
+        ? null
+        : (int) $maximumLength;
+}
+
+function normalizeSubmittedSkillIds($submittedIds)
+{
+    if (!is_array($submittedIds)) {
+        throw new InvalidArgumentException('Choose skills from the available list.');
+    }
+
+    $skillIds = [];
+    foreach ($submittedIds as $submittedId) {
+        if (!is_string($submittedId) && !is_int($submittedId)) {
+            throw new InvalidArgumentException('One or more selected skills are invalid.');
+        }
+
+        $skillId = filter_var(
+            $submittedId,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1]]
+        );
+        if ($skillId === false) {
+            throw new InvalidArgumentException('One or more selected skills are invalid.');
+        }
+
+        $skillIds[$skillId] = $skillId;
+    }
+
+    return array_values($skillIds);
+}
+
+function releaseCurrentUserSkillCreationLock(PDO $pdo, $lockName)
+{
+    if ($lockName === null) {
+        return;
+    }
+
+    try {
+        $releaseLock = $pdo->prepare('SELECT RELEASE_LOCK(?)');
+        $releaseLock->execute([$lockName]);
+        if ((int) $releaseLock->fetchColumn() !== 1) {
+            error_log('The skill creation lock could not be released.');
+        }
+    } catch (PDOException $e) {
+        error_log('The skill creation lock could not be released: ' . $e->getMessage());
+    }
+}
+
+function saveCurrentUserSkills(PDO $pdo, array $skillIds, $newSkillName)
+{
+    $userId = profileCurrentUserId();
+    $skillCheck = $pdo->prepare('SELECT id FROM skills WHERE id = ?');
+    foreach ($skillIds as $skillId) {
+        $skillCheck->execute([$skillId]);
+        if ($skillCheck->fetchColumn() === false) {
+            throw new InvalidArgumentException('One or more selected skills no longer exist. Please review your selections.');
+        }
+    }
+
+    $newSkillName = is_string($newSkillName) ? trim($newSkillName) : '';
+    $lockName = null;
+    if ($newSkillName !== '') {
+        $maximumLength = getSkillNameMaximumLength($pdo);
+        if (
+            $maximumLength !== null
+            && mb_strlen($newSkillName) > $maximumLength
+        ) {
+            throw new InvalidArgumentException('The skill name is too long.');
+        }
+
+        $lockName = 'skill:' . substr(hash('sha256', mb_strtolower($newSkillName, 'UTF-8')), 0, 59);
+        $lockStmt = $pdo->prepare('SELECT GET_LOCK(?, 10)');
+        $lockStmt->execute([$lockName]);
+        if ((int) $lockStmt->fetchColumn() !== 1) {
+            throw new RuntimeException('A new skill could not be saved right now. Please try again.');
+        }
+    }
+
+    try {
+        if ($newSkillName !== '') {
+            $findSkill = $pdo->prepare(
+                'SELECT id FROM skills WHERE LOWER(TRIM(name)) = LOWER(?) LIMIT 1'
+            );
+            $findSkill->execute([$newSkillName]);
+            $newSkillId = $findSkill->fetchColumn();
+
+            if ($newSkillId === false) {
+                $createSkill = $pdo->prepare('INSERT INTO skills (name) VALUES (?)');
+                $createSkill->execute([$newSkillName]);
+                $newSkillId = (int) $pdo->lastInsertId();
+            } else {
+                $newSkillId = (int) $newSkillId;
+            }
+
+            if (!in_array($newSkillId, $skillIds, true)) {
+                $skillIds[] = $newSkillId;
+            }
+        }
+
+        $pdo->prepare('DELETE FROM user_skills WHERE user_id = ?')->execute([$userId]);
+        $insertUserSkill = $pdo->prepare(
+            'INSERT INTO user_skills (user_id, skill_id) VALUES (?, ?)'
+        );
+        foreach ($skillIds as $skillId) {
+            $insertUserSkill->execute([$userId, $skillId]);
+        }
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        releaseCurrentUserSkillCreationLock($pdo, $lockName);
+        throw $e;
+    }
+
+    return $lockName;
+}
+
 function getCurrentUserInterests(PDO $pdo)
 {
     $stmt = $pdo->prepare(
